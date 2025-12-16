@@ -1,11 +1,19 @@
 const express = require("express");
 const cors = require("cors");
+const { Configuration, OpenAIApi } = require("openai");
+require("dotenv").config();
 
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// OpenAI setup
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY
+});
+const openai = new OpenAIApi(configuration);
 
 // Health check
 app.get("/", (req, res) => {
@@ -16,27 +24,28 @@ app.get("/", (req, res) => {
 app.post("/ai", async (req, res) => {
   try {
     const { prompt } = req.body;
+    if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
-    }
+    // Real OpenAI response
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 150
+    });
 
-    // Dummy AI response (stable)
+    const aiResponse = completion.data.choices[0].message.content;
+
     res.json({
       success: true,
-      response: "AI received: " + prompt
+      response: aiResponse
     });
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: "Server error"
-    });
+    console.error(error.response ? error.response.data : error.message);
+    res.status(500).json({ success: false, error: "Server error" });
   }
 });
 
 // Port
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
+app.listen(PORT, () => console.log("Server running on port", PORT));
