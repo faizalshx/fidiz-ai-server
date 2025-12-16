@@ -1,7 +1,7 @@
 {
   "name": "fidiz-ai-server",
   "version": "1.0.0",
-  "description": "Fidiz AI server with OpenAI integration",
+  "description": "Fidiz AI server with OpenAI v4+ integration",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
