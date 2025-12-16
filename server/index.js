@@ -9,15 +9,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// OpenAI setup (v4+)
+// Check if API key is set
 if (!process.env.OPENAI_API_KEY) {
   console.error("ERROR: OPENAI_API_KEY is missing in environment variables!");
   process.exit(1);
 }
 
+// OpenAI v4 setup
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
+
+// Debug: confirm API key loaded
+console.log("OPENAI_API_KEY loaded:", process.env.OPENAI_API_KEY ? "YES" : "NO");
 
 // Health check
 app.get("/", (req, res) => {
@@ -30,7 +34,6 @@ app.post("/ai", async (req, res) => {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
-    // OpenAI API call
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
@@ -45,7 +48,6 @@ app.post("/ai", async (req, res) => {
     });
 
   } catch (error) {
-    // Detailed error for debugging
     console.error("OpenAI Error:", error.response ? error.response.data : error.message);
     res.status(500).json({
       success: false,
@@ -54,6 +56,6 @@ app.post("/ai", async (req, res) => {
   }
 });
 
-// Port
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log("Server running on port", PORT));
