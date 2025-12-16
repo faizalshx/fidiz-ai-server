@@ -10,6 +10,11 @@ app.use(cors());
 app.use(express.json());
 
 // OpenAI setup (v4+)
+if (!process.env.OPENAI_API_KEY) {
+  console.error("ERROR: OPENAI_API_KEY is missing in environment variables!");
+  process.exit(1);
+}
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
@@ -40,8 +45,12 @@ app.post("/ai", async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error.response ? error.response.data : error.message);
-    res.status(500).json({ success: false, error: "Server error" });
+    // Detailed error for debugging
+    console.error("OpenAI Error:", error.response ? error.response.data : error.message);
+    res.status(500).json({
+      success: false,
+      error: error.response ? error.response.data : error.message
+    });
   }
 });
 
