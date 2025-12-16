@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 require("dotenv").config();
 
 const app = express();
@@ -9,11 +9,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// OpenAI setup
-const configuration = new Configuration({
+// OpenAI setup (v4+)
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
-const openai = new OpenAIApi(configuration);
 
 // Health check
 app.get("/", (req, res) => {
@@ -26,14 +25,14 @@ app.post("/ai", async (req, res) => {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
-    // Real OpenAI response
-    const completion = await openai.createChatCompletion({
+    // OpenAI API call
+    const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 150
     });
 
-    const aiResponse = completion.data.choices[0].message.content;
+    const aiResponse = completion.choices[0].message.content;
 
     res.json({
       success: true,
