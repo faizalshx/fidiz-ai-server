@@ -1,6 +1,7 @@
 {
   "name": "fidiz-ai-server",
   "version": "1.0.0",
+  "description": "Fidiz AI server with OpenAI v4+ integration",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -9,9 +10,10 @@
     "node": "22.x"
   },
   "dependencies": {
-    "express": "^4.19.2",
+    "@google/generative-ai": "^0.24.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
+    "express": "^4.19.2",
     "openai": "^4.10.0"
   }
 }
