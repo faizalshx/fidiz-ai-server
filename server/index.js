@@ -10,8 +10,10 @@ app.use(cors());
 app.use(express.json());
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-// Latest Stable Model for Global use
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// Isme humne version fix kar diya hai
+const model = genAI.getGenerativeModel({ 
+  model: "gemini-1.5-flash-latest" 
+});
 
 app.get("/", (req, res) => {
   res.send("Vantage AI Global Server is Live! 🚀");
@@ -39,3 +41,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
