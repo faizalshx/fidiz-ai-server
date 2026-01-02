@@ -1,46 +1,34 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
 const axios = require("axios");
-
-dotenv.config();
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.get("/", (req, res) => res.send("Vantage API Final Fix Live! ✅"));
+// ... baki imports same rahenge
 
 app.post("/ai", async (req, res) => {
   try {
     const { prompt } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
-    // Sabse stable URL aur Model ka combination:
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+    // YE HAI AAPKE AI KA DNA (System Instruction)
+    const systemInstruction = `
+      You are 'Fidiz AI', a world-class Habit & Productivity Coach. 
+      Your creator is Faizal.
+      Rules:
+      1. ONLY talk about habits, routines, tasks, and motivation.
+      2. Be direct, professional, and highly motivating.
+      3. If a user asks about anything else, politely say: 'I am Fidiz AI, focused only on your peak performance. Let's talk about your habits instead.'
+      4. Use emojis like 🚀, 🎯, 🔥 to keep it engaging.
+    `;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const response = await axios.post(url, {
-      contents: [{ parts: [{ text: prompt }] }]
+      contents: [
+        { role: "user", parts: [{ text: systemInstruction + "\n\nUser Question: " + prompt }] }
+      ]
     });
 
-    // Google API response structure check
-    if (response.data.candidates && response.data.candidates[0].content) {
-        const aiResponse = response.data.candidates[0].content.parts[0].text;
-        res.json({ success: true, response: aiResponse });
-    } else {
-        throw new Error("Invalid AI Response format");
-    }
+    const aiResponse = response.data.candidates[0].content.parts[0].text;
+    res.json({ success: true, response: aiResponse });
 
   } catch (error) {
-    // Ye logs Render dashboard par asli wajah batayenge (Check logs carefully!)
-    console.error("FULL ERROR DETAIL:", JSON.stringify(error.response ? error.response.data : error.message));
-    
-    res.status(500).json({ 
-      success: false, 
-      error: "AI Engine is syncing, please try again." 
-    });
+    res.status(500).json({ success: false, error: "Fidiz AI is sleeping. Wake it up soon!" });
   }
 });
-
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
